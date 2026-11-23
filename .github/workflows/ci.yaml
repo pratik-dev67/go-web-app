@@ -3,7 +3,38 @@ on:
     branches: [main]
 
 jobs:
+  linting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+            # 2. Set up Go
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      # 3. Install dependencies
+      - name: Download Dependencies
+        run: go mod download
+
+      # 4. Run Go Linter
+      - name: Code Linting
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.13
+
+      # 5. Run Unit Tests
+      - name: Run Tests
+        run: go test ./...
+
+      # 6. Build Go Application
+      - name: Build Application
+        run: go build -v ./...
+    
   build-push:
+    needs: [linting]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
